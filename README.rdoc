@@ -1,6 +1,9 @@
 = growl-github-feed
 
-Description goes here.
+growling your github feed.
+
+== Dependency
+* peter-murach/github_api
 
 == Contributing to growl-github-feed
  
