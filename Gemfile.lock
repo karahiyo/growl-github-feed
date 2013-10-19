@@ -40,6 +40,8 @@ GEM
       multi_json (~> 1.0)
       multi_xml (~> 0.5)
       rack (~> 1.2)
+    octokit (2.4.0)
+      sawyer (~> 0.5.1)
     rack (1.5.2)
     rake (10.1.0)
     rdoc (3.12.2)
@@ -52,6 +54,9 @@ GEM
     rspec-expectations (2.8.0)
       diff-lcs (~> 1.1.2)
     rspec-mocks (2.8.0)
+    sawyer (0.5.1)
+      addressable (~> 2.3.5)
+      faraday (~> 0.8, < 0.10)
     simplecov (0.7.1)
       multi_json (~> 1.0)
       simplecov-html (~> 0.7.1)
@@ -62,8 +67,9 @@ PLATFORMS
 
 DEPENDENCIES
   bundler (~> 1.0)
-  github_api
+  highline
   jeweler (~> 1.8.7)
+  octokit
   rdoc (~> 3.12)
   rspec (~> 2.8.0)
   simplecov
