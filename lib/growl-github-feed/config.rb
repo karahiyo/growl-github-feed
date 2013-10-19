@@ -8,8 +8,10 @@ module GrowlGithubFeed
     
     def initialize
       # set user parameters
-      @user = ask("Github user name: ")
-      @pass = ask("Github password: ") { |q| q.echo = false }
+      @user = ENV["GITHUB_USER"]
+      @pass = ENV["GITHUB_PASS"]
+      @user = ask("Github user name: ") if @user.nil?
+      @pass = ask("Github password: ") { |q| q.echo = false } if @pass.nil?
     end
   end
 end
