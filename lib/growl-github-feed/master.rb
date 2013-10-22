@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 require 'growl-github-feed/config'
+require 'growl-github-feed/event'
 
 module GrowlGithubFeed
   class Master
@@ -11,9 +12,27 @@ module GrowlGithubFeed
     end
 
     def start
-      user = Octokit::Client.new(:login => "#{@conf.user}", :password => "#{@conf.pass}")
-      feeds =  user.public_events
+      github = get_auth
+      #feeds =  github.organization_public_events("#{@conf.org}")
+      feeds =  github.received_events("#{@conf.user}")
+      return [] if feeds.empty?
+      events = feeds.map{|r| Event.new(r)}
+      events.each do |event|
+
+        p "id: #{event.id}"
+        p "time: #{event.created_at}"
+        p "type: #{event.type}"
+        p "repo_id: #{event.repo_id}"
+        p "repo_name: #{event.repo_name}"
+        p event
+        p "\n"
+      end
     end
+
+    def get_auth
+      Octokit::Client.new(:login => "#{@conf.user}",  :password => "#{@conf.pass}")
+    end
+
   end
 end
 
