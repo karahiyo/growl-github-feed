@@ -10,17 +10,77 @@ module GrowlGithubFeed
     def initialize
       @conf = Config.new
       @growl = GrowlGithubFeed::PopUpper.new
+      @last_event_time = Time.now - 24*60*60;
+
+      # daemonize
+      @term = false
+      @logger = Logger.new("./growl-github-feed.log")
+      @logger.info "GrowlGithubFeed daemon start .."
+      @pid_file_path = './growl-github-feed.pid'
     end
 
-    def start
-      feeds = self.get_feeds
-      return [] if feeds.empty?
-      events = feeds.map{|r| Event.new(r)}
-      events.each do |event|
-        title, msg, img = self.extract_event_info event
-        @growl.notify(title, msg, img)
+    def execute
+      github = get_auth
+      (1..Float::INFINITY).each do |page|
+        feeds = github.received_events("#{@conf.user}",  page: page)
+        #feeds = self.get_feeds()
+        return [] if feeds.empty?
+        events = feeds.map{|r| Event.new(r)}
+        events.each do |event|
+          timestamp = event.created_at
+          if @last_event_time < timestamp
+            title, msg, img = self.extract_event_info event
+            @logger.info "[#{timestamp}]"
+            @logger.info "title: #{title}"
+            @logger.info "message: #{msg}"
+            @growl.notify(title, msg, img)
+          else
+            break
+          end
+        end # /events.each{}
+        timestamp = events[0].created_at
+        @last_event_time = timestamp
+        sleep 10
       end
     end
+
+    ## daemon
+
+    def run
+      daemonize
+      begin
+        Signal.trap(:TERM) { shutdown }
+        Signal.trap(:INT) { shutdown }
+        execute 
+      rescue => ex
+        @logger.error ex
+      end
+    end
+
+    def shutdown
+      @term = true
+      @logger.info "GrowlGithubFeed close.."
+      @logger.close
+      FileUtils.rm @pid_file_path
+    end
+
+    def daemonize
+      exit!(0) if Process.fork
+      Process.setsid
+      exit!(0) if Process.fork
+      open_pid_file
+    end
+
+    def open_pid_file
+      begin
+        open( @pid_file_path,  'w' ) {|f| f << Process.pid } if @pid_file_path
+      rescue => ex
+        @logger.error "could not open pid file (#{@pid_file_path})"
+        @logger.error "error: #{ex}"
+        @logger.error ex.backtrace * "\n"
+      end
+    end
+    ##  utils
 
     def extract_event_info(event)
       title = "#{event.user}"

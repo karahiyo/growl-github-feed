@@ -17,8 +17,8 @@ Jeweler::Tasks.new do |gem|
   gem.name = "growl-github-feed"
   gem.homepage = "http://github.com/karahiyo/growl-github-feed"
   gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
+  gem.summary = "Growling Your Github Feed"
+  gem.description = "notifying your github feed, and push message in Growl."
   gem.email = "a.ryuklnm@gmail.com"
   gem.authors = ["karahiyo"]
   # dependencies defined in Gemfile

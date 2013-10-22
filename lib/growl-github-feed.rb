@@ -5,9 +5,12 @@ require "growl-github-feed/load"
 require "growl-github-feed/master"
 require "growl-github-feed/popupper"
 
+
 module GrowlGithubFeed
-  def run
-    Master.new.start
+  class Main
+    def run
+      GrowlGithubFeed::Master.new.run
+    end
   end
 end
 
