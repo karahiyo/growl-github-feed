@@ -8,12 +8,11 @@ module GrowlGithubFeed
     end
 
     def id
-      return nil if content_hash.id?
       content_hash[:id]
     end
 
     def created_at
-      content_hash[:created_at]
+      content_hash[:created_at].getlocal
     end
 
     def type

@@ -12,6 +12,7 @@ group :development do
   gem "jeweler", "~> 1.8.7"
   gem "simplecov", ">= 0"
   gem "highline"
+  gem "parseconfig"
   gem "octokit"
   gem "ruby-growl"
 end

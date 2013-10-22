@@ -7,10 +7,12 @@ require 'growl-github-feed/event'
 module GrowlGithubFeed
   class Master
 
+    attr_reader :conf, :growl
+
     def initialize
       @conf = Config.new
       @growl = GrowlGithubFeed::PopUpper.new
-      @last_event_time = Time.now - 24*60*60;
+      @last_event_time = Time.now.getlocal - 24*60*60;
 
       # daemonize
       @term = false
@@ -20,29 +22,34 @@ module GrowlGithubFeed
     end
 
     def execute
-      github = get_auth
-      (1..Float::INFINITY).each do |page|
-        feeds = github.received_events("#{@conf.user}",  page: page)
-        #feeds = self.get_feeds()
-        return [] if feeds.empty?
-        events = feeds.map{|r| Event.new(r)}
-        events.each do |event|
-          timestamp = event.created_at
-          if @last_event_time < timestamp
-            title, msg, img = self.extract_event_info event
-            @logger.info "[#{timestamp}]"
-            @logger.info "title: #{title}"
-            @logger.info "message: #{msg}"
-            @growl.notify(title, msg, img)
-          else
-            break
-          end
-        end # /events.each{}
-        timestamp = events[0].created_at
-        @last_event_time = timestamp
+      github = self.get_auth
+      loop do
+        re_feeds = github.received_events("#{@conf.user}")
+        usr_feeds = github.user_events("#{@conf.user}")
+        tmp_last_event_time = @last_event_time
+        [ re_feeds, usr_feeds ].each do |feeds|
+          return [] if feeds.empty?
+          events = feeds.map{|r| Event.new(r)}
+          events.each do |event|
+            timestamp = event.created_at
+            if @last_event_time < timestamp
+              title, msg, img = self.extract_event_info event
+              @logger.info "[#{timestamp}]"
+              @logger.info "title: #{title}"
+              @logger.info "message: #{msg}"
+              @growl.notify(title, msg, img)
+            else
+              next
+            end
+          end # /events.each{}
+          ts = feeds[0].created_at
+          tmp_last_event_time = ts if tmp_last_event_time < ts
+        end
+        @last_event_time = tmp_last_event_time
         sleep 10
       end
     end
+
 
     ## daemon
 
@@ -61,7 +68,7 @@ module GrowlGithubFeed
       @term = true
       @logger.info "GrowlGithubFeed close.."
       @logger.close
-      FileUtils.rm @pid_file_path
+      #FileUtils.rm @pid_file_path
     end
 
     def daemonize
@@ -80,6 +87,8 @@ module GrowlGithubFeed
         @logger.error ex.backtrace * "\n"
       end
     end
+
+
     ##  utils
 
     def extract_event_info(event)
@@ -102,17 +111,12 @@ module GrowlGithubFeed
       response.body.to_s.force_encoding("UTF-8")
     end
 
-    def get_feeds
-      github = get_auth
-      github.received_events("#{@conf.user}")
-    end
-
-    private
-
     def get_auth
-      Octokit::Client.new(:login => "#{@conf.user}",  :password => "#{@conf.pass}")
-    end
+      return Octokit::Client.new(:login => "#{@conf.user}",  
+                                 :password => "#{@conf.pass}") if @conf.token.nil?
 
+      Octokit::Client.new :access_token => "#{@conf.token}"
+    end
   end
 end
 
