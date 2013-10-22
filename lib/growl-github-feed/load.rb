@@ -4,3 +4,4 @@
 require 'octokit'
 require 'github_api'
 require 'highline/import'
+require 'ruby-growl'

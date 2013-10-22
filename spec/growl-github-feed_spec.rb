@@ -4,4 +4,9 @@ describe "GrowlGithubFeed" do
   it "GrowlGithubFeed::Master can start" do
     GrowlGithubFeed::Master.new.start
   end
+
+  it "GrowlGithubFeed::PopUooer can pop-up to local Growl" do
+    g = GrowlGithubFeed::PopUpper.new
+    g.notify("test",  "hogehogehoge")
+  end
 end

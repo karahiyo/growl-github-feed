@@ -3,6 +3,7 @@
 
 require "growl-github-feed/load"
 require "growl-github-feed/master"
+require "growl-github-feed/popupper"
 
 module GrowlGithubFeed
   def run

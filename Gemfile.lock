@@ -29,6 +29,8 @@ GEM
     json (1.8.1)
     jwt (0.1.8)
       multi_json (>= 1.5)
+    macaddr (1.6.1)
+      systemu (~> 2.5.0)
     multi_json (1.8.2)
     multi_xml (0.5.5)
     multipart-post (1.2.0)
@@ -54,6 +56,8 @@ GEM
     rspec-expectations (2.8.0)
       diff-lcs (~> 1.1.2)
     rspec-mocks (2.8.0)
+    ruby-growl (4.0)
+      uuid (~> 2.3, >= 2.3.5)
     sawyer (0.5.1)
       addressable (~> 2.3.5)
       faraday (~> 0.8, < 0.10)
@@ -61,6 +65,9 @@ GEM
       multi_json (~> 1.0)
       simplecov-html (~> 0.7.1)
     simplecov-html (0.7.1)
+    systemu (2.5.2)
+    uuid (2.3.7)
+      macaddr (~> 1.0)
 
 PLATFORMS
   ruby
@@ -72,4 +79,5 @@ DEPENDENCIES
   octokit
   rdoc (~> 3.12)
   rspec (~> 2.8.0)
+  ruby-growl
   simplecov

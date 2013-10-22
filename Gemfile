@@ -13,4 +13,5 @@ group :development do
   gem "simplecov", ">= 0"
   gem "highline"
   gem "octokit"
+  gem "ruby-growl"
 end
