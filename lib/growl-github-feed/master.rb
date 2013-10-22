@@ -9,26 +9,34 @@ module GrowlGithubFeed
 
     def initialize
       @conf = Config.new
+      @growl = GrowlGithubFeed::PopUpper.new
     end
 
     def start
-      github = get_auth
-      #feeds =  github.organization_public_events("#{@conf.org}")
-      feeds =  github.received_events("#{@conf.user}")
+      feeds = self.get_feeds
       return [] if feeds.empty?
       events = feeds.map{|r| Event.new(r)}
       events.each do |event|
-
-        p "id: #{event.id}"
-        p "time: #{event.created_at}"
-        p "type: #{event.type}"
-        p "repo_id: #{event.repo_id}"
-        p "repo_name: #{event.repo_name}"
-        p "user: #{event.user}"
-        p "user_avatar_id: #{event.user_avatar_id}"
-        p "\n"
+        title, msg, img = self.extract_event_info event
+        @growl.notify(title, msg, img)
       end
     end
+
+    def extract_event_info(event)
+      title = "#{event.user}"
+      title += "@#{event.repo_name}"
+      msg = "#{event.comment_body}\n"
+      msg += "#{event.created_at}"
+      img = event.user_avatar_id
+      return title, msg, img
+    end
+
+    def get_feeds
+      github = get_auth
+      github.received_events("#{@conf.user}")
+    end
+
+    private
 
     def get_auth
       Octokit::Client.new(:login => "#{@conf.user}",  :password => "#{@conf.pass}")
