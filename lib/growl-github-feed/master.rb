@@ -14,7 +14,7 @@ module GrowlGithubFeed
 
       # daemonize
       @term = false
-      @logger = Logger.new(STDOUT)
+      @logger = Logger.new("./growl-github-feed.log")
       @logger.info "GrowlGithubFeed daemon start .."
       @pid_file_path = './growl-github-feed.pid'
     end
@@ -30,12 +30,16 @@ module GrowlGithubFeed
           timestamp = event.created_at
           if @last_event_time < timestamp
             title, msg, img = self.extract_event_info event
+            @logger.info "[#{timestamp}]"
+            @logger.info "title: #{title}"
+            @logger.info "message: #{msg}"
             @growl.notify(title, msg, img)
-            @last_event_time = timestamp
           else
             break
           end
-        end
+        end # /events.each{}
+        timestamp = events[0].created_at
+        @last_event_time = timestamp
         sleep 10
       end
     end
