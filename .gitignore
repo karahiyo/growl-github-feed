@@ -51,3 +51,4 @@ pkg
 # For init script
 init.sh
 room
+*.pid
