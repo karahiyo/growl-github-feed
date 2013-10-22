@@ -8,8 +8,12 @@ require "growl-github-feed/popupper"
 
 module GrowlGithubFeed
   class Main
+
+    def initialize 
+      @ggf = GrowlGithubFeed::Master.new
+    end
     def run
-      GrowlGithubFeed::Master.new.run
+      @ggf.run
     end
   end
 end
