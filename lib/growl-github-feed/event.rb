@@ -27,6 +27,14 @@ module GrowlGithubFeed
       repo_part[:name]
     end
 
+    def user
+      content_hash[:actor][:login]
+    end
+
+    def user_avatar_id
+      content_hash[:actor][:gravatar_id]
+    end
+
     private
 
     def repo_part

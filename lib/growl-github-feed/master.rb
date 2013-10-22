@@ -24,7 +24,8 @@ module GrowlGithubFeed
         p "type: #{event.type}"
         p "repo_id: #{event.repo_id}"
         p "repo_name: #{event.repo_name}"
-        p event
+        p "user: #{event.user}"
+        p "user_avatar_id: #{event.user_avatar_id}"
         p "\n"
       end
     end
