@@ -7,6 +7,8 @@ require 'growl-github-feed/event'
 module GrowlGithubFeed
   class Master
 
+    attr_reader :conf
+
     def initialize
       @conf = Config.new
       @growl = GrowlGithubFeed::PopUpper.new
@@ -20,10 +22,9 @@ module GrowlGithubFeed
     end
 
     def execute
-      github = get_auth
-      (1..Float::INFINITY).each do |page|
-        feeds = github.received_events("#{@conf.user}",  page: page)
-        #feeds = self.get_feeds()
+      github = self.get_auth
+      loop do
+        feeds = github.received_events("#{@conf.user}")
         return [] if feeds.empty?
         events = feeds.map{|r| Event.new(r)}
         events.each do |event|
@@ -38,11 +39,11 @@ module GrowlGithubFeed
             break
           end
         end # /events.each{}
-        timestamp = events[0].created_at
-        @last_event_time = timestamp
+        @last_event_time = events[0].created_at
         sleep 10
       end
     end
+
 
     ## daemon
 
@@ -61,7 +62,7 @@ module GrowlGithubFeed
       @term = true
       @logger.info "GrowlGithubFeed close.."
       @logger.close
-      FileUtils.rm @pid_file_path
+      #FileUtils.rm @pid_file_path
     end
 
     def daemonize
@@ -80,6 +81,8 @@ module GrowlGithubFeed
         @logger.error ex.backtrace * "\n"
       end
     end
+
+
     ##  utils
 
     def extract_event_info(event)
@@ -102,17 +105,12 @@ module GrowlGithubFeed
       response.body.to_s.force_encoding("UTF-8")
     end
 
-    def get_feeds
-      github = get_auth
-      github.received_events("#{@conf.user}")
-    end
-
-    private
-
     def get_auth
-      Octokit::Client.new(:login => "#{@conf.user}",  :password => "#{@conf.pass}")
-    end
+      return Octokit::Client.new(:login => "#{@conf.user}",  
+                                 :password => "#{@conf.pass}") if @conf.token.nil?
 
+      Octokit::Client.new :access_token => "#{@conf.token}"
+    end
   end
 end
 

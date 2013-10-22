@@ -4,16 +4,16 @@
 module GrowlGithubFeed
   class Config
 
-    attr_reader :user,  :pass,  :org
+    attr_reader :user, :pass, :token
     
     def initialize
       # set user parameters
-      @user = ENV["GITHUB_USER"]
-      @pass = ENV["GITHUB_PASS"]
-      @org  = ENV["GITHUB_ORG"]
+      local_user = ENV["USER"]
+      config = ParseConfig.new("/Users/#{local_user}/.gitconfig")
+      @user = config['github']['user']
+      @token= config['github']['token']
       @user = ask("Github user name: ") if @user.nil?
-      @pass = ask("Github password: ") { |q| q.echo = false } if @pass.nil?
-      @org = ask("Your organization: ") if @org.nil?
+      @pass = ask("Github password: ") { |q| q.echo = false } if @token.nil?
     end
   end
 end
