@@ -8,7 +8,6 @@ module GrowlGithubFeed
     end
 
     def id
-      return nil if content_hash.id?
       content_hash[:id]
     end
 

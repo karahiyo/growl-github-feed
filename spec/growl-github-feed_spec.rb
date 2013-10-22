@@ -18,10 +18,36 @@ describe "GrowlGithubFeed" do
   end
 
   it "GrowlGithubFeed::Master can get data" do
+    require 'growl-github-feed/event'
     master = GrowlGithubFeed::Master.new
     github = master.get_auth
     feeds = github.received_events("#{master.conf.user}")
-    feeds.count.should > 0
+    events = feeds.map{|r| GrowlGithubFeed::Event.new(r)}
+    events.each do |event|
+      title, msg, img = master.extract_event_info event
+      master.growl.notify(title, msg, img)
+    end
   end
 
+  it "GrowlGithubFeed::Master can get data" do
+    master = GrowlGithubFeed::Master.new
+    github = master.get_auth
+    feeds = github.public_events()
+    events = feeds.map{|r| GrowlGithubFeed::Event.new(r)}
+    events.each do |event|
+      title, msg, img = master.extract_event_info event
+      master.growl.notify(title, msg, img)
+    end
+  end
+
+  it "GrowlGithubFeed::Master can get data" do
+    master = GrowlGithubFeed::Master.new
+    github = master.get_auth
+    feeds = github.user_events("#{master.conf.user}")
+    events = feeds.map{|r| GrowlGithubFeed::Event.new(r)}
+    events.each do |event|
+      title, msg, img = master.extract_event_info event
+      master.growl.notify(title, msg, img)
+    end
+  end
 end

@@ -7,7 +7,7 @@ require 'growl-github-feed/event'
 module GrowlGithubFeed
   class Master
 
-    attr_reader :conf
+    attr_reader :conf, :growl
 
     def initialize
       @conf = Config.new
@@ -24,21 +24,26 @@ module GrowlGithubFeed
     def execute
       github = self.get_auth
       loop do
-        feeds = github.received_events("#{@conf.user}")
-        return [] if feeds.empty?
-        events = feeds.map{|r| Event.new(r)}
-        events.each do |event|
-          timestamp = event.created_at
-          if @last_event_time < timestamp
-            title, msg, img = self.extract_event_info event
-            @logger.info "[#{timestamp}]"
-            @logger.info "title: #{title}"
-            @logger.info "message: #{msg}"
-            @growl.notify(title, msg, img)
-          else
-            break
-          end
-        end # /events.each{}
+        re_feeds = github.received_events("#{@conf.user}")
+        pu_feeds = github.public_events()
+        usr_feeds = github.user_events("#{@conf.user}")
+        [re_feeds, pu_feeds, usr_feeds].each do |feeds|
+
+          return [] if feeds.empty?
+          events = feeds.map{|r| Event.new(r)}
+          events.each do |event|
+            timestamp = event.created_at
+            if @last_event_time < timestamp
+              title, msg, img = self.extract_event_info event
+              @logger.info "[#{timestamp}]"
+              @logger.info "title: #{title}"
+              @logger.info "message: #{msg}"
+              @growl.notify(title, msg, img)
+            else
+              next
+            end
+          end # /events.each{}
+        end
         @last_event_time = events[0].created_at
         sleep 10
       end
