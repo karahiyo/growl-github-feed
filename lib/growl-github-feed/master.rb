@@ -27,8 +27,19 @@ module GrowlGithubFeed
       title += "@#{event.repo_name}"
       msg = "#{event.comment_body}\n"
       msg += "#{event.created_at}"
-      img = event.user_avatar_id
+      avatar_id = "#{event.user_avatar_id}"
+      img = self.get_img(avatar_id)
       return title, msg, img
+    end
+
+    def get_img(user_id)
+      return File.open(__DIR__ + "/../appIcons.icns").read if user_id.nil?
+      uri = URI("http://www.gravatar.com/avatar/#{user_id}.jpg")
+      host = uri.host
+      path = uri.path
+      http = Net::HTTP.new(host)
+      response = http.get(path)
+      response.body.to_s.force_encoding("UTF-8")
     end
 
     def get_feeds
