@@ -1,17 +1,18 @@
+#!/usr/bin/env ruby
+# encoding: utf-8
 
 module GrowlGithubFeed 
   class PopUpper
 
     def initialize
-      @g = Growl.new 'localhost', 'ruby-growl'
+      @g = Growl.new 'localhost', 'GrowlGithubFeeds'
     end
 
-    def notify(main, msg)
+    def notify(title, msg, img=Growl::RUBY_LOGO_PNG)
+      app_name = "GrowlGithubFeed"
       require "ruby-growl/ruby_logo"
-      @g.add_notification("GrowlGithubFeed Notification",  
-                         "main", 
-                         Growl::RUBY_LOGO_PNG)
-      @g.notify "GrowlGithubFeed Notification",  "#{main}",  "#{msg}"
+      @g.add_notification(app_name, "#{title}", "#{img}")
+      @g.notify "#{app_name}",  "#{title}",  "#{msg}"
     end
   end
 

@@ -8,6 +8,7 @@ module GrowlGithubFeed
     end
 
     def id
+      return nil if content_hash.id?
       content_hash[:id]
     end
 
@@ -25,6 +26,23 @@ module GrowlGithubFeed
 
     def repo_name
       repo_part[:name]
+    end
+
+    def user
+      content_hash[:actor][:login]
+    end
+
+    def user_avatar_id
+      content_hash[:actor][:gravatar_id]
+    end
+
+    def comment_body
+      h = content_hash.attrs
+      return nil unless h.key? :payload
+      h = h[:payload].attrs
+      return nil unless h.key? :comment
+      h = h[:comment].attrs
+      h[:body]
     end
 
     private
