@@ -12,7 +12,7 @@ module GrowlGithubFeed
     end
 
     def created_at
-      content_hash[:created_at]
+      content_hash[:created_at].getlocal
     end
 
     def type

@@ -12,7 +12,7 @@ module GrowlGithubFeed
     def initialize
       @conf = Config.new
       @growl = GrowlGithubFeed::PopUpper.new
-      @last_event_time = Time.now - 24*60*60;
+      @last_event_time = Time.now.getlocal - 24*60*60;
 
       # daemonize
       @term = false
@@ -25,10 +25,9 @@ module GrowlGithubFeed
       github = self.get_auth
       loop do
         re_feeds = github.received_events("#{@conf.user}")
-        pu_feeds = github.public_events()
         usr_feeds = github.user_events("#{@conf.user}")
-        [re_feeds, pu_feeds, usr_feeds].each do |feeds|
-
+        tmp_last_event_time = @last_event_time
+        [ re_feeds, usr_feeds ].each do |feeds|
           return [] if feeds.empty?
           events = feeds.map{|r| Event.new(r)}
           events.each do |event|
@@ -43,8 +42,10 @@ module GrowlGithubFeed
               next
             end
           end # /events.each{}
+          ts = feeds[0].created_at
+          tmp_last_event_time = ts if tmp_last_event_time < ts
         end
-        @last_event_time = events[0].created_at
+        @last_event_time = tmp_last_event_time
         sleep 10
       end
     end
