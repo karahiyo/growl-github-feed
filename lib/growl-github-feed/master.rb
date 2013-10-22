@@ -7,7 +7,7 @@ require 'growl-github-feed/event'
 module GrowlGithubFeed
   class Master
 
-    attr_reader :conf
+    attr_reader :conf, :growl
 
     def initialize
       @conf = Config.new
@@ -25,6 +25,8 @@ module GrowlGithubFeed
       github = self.get_auth
       loop do
         feeds = github.received_events("#{@conf.user}")
+        feeds << github.public_events()
+        feeds << github.user_events("#{@conf.user}")
         return [] if feeds.empty?
         events = feeds.map{|r| Event.new(r)}
         events.each do |event|
@@ -36,7 +38,7 @@ module GrowlGithubFeed
             @logger.info "message: #{msg}"
             @growl.notify(title, msg, img)
           else
-            break
+            next
           end
         end # /events.each{}
         @last_event_time = events[0].created_at
